@@ -1,0 +1,21 @@
+From 787dbecd7598ce14d1eaa292fd02ed749b84bf2a Mon Sep 17 00:00:00 2001
+From: MisterZtr <andey2004586@gmail.com>
+Date: Sun Jul 9 20:19:10 2023 +0300
+Subject: [PATCH] Fix build number
+
+---
+ config/version.mk | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/config/version.mk b/config/version.mk
+index d68d3c44..23bd53a6 100644
+--- a/config/version.mk
++++ b/config/version.mk
+@@ -8,5 +8,5 @@ CUSTOM_BUILD_DATE := $(CUSTOM_DATE_YEAR)$(CUSTOM_DATE_MONTH)$(CUSTOM_DATE_DAY)-$
+
+ CUSTOM_PLATFORM_VERSION := 13.0
+
+-CUSTOM_VERSION := PixelOS_$(CUSTOM_BUILD)-$(CUSTOM_PLATFORM_VERSION)-$(CUSTOM_BUILD_DATE)
++CUSTOM_VERSION := PixelOS_$(TARGET_PRODUCT)-$(CUSTOM_PLATFORM_VERSION)-$(CUSTOM_BUILD_DATE)
+ CUSTOM_VERSION_PROP := thirteen
+

@@ -1,0 +1,21 @@
+From 146dec0342cbbfd4d52941593b9151001010234d Mon Sep 17 00:00:00 2001
+From: MisterZtr <andey2004586@gmail.com>
+Date:   Sun Jul 9 20:08:11 2023 +0300
+Subject: [PATCH] build: Fix device name
+
+---
+ tools/buildinfo.sh | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/tools/buildinfo.sh b/tools/buildinfo.sh
+index 51819ade35..5b8734dca8 100755
+--- a/tools/buildinfo.sh
++++ b/tools/buildinfo.sh
+@@ -57,6 +57,6 @@ if [ -n "$BUILD_THUMBPRINT" ] ; then
+   echo "ro.build.thumbprint=$BUILD_THUMBPRINT"
+ fi
+
+-echo "ro.custom.device=$CUSTOM_DEVICE"
++echo "ro.custom.device=$TARGET_DEVICE"
+
+ echo "# end build properties"

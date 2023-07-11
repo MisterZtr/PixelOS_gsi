@@ -1,0 +1,31 @@
+From 62e2988aeb0281d3f691440229a960a3a27a0f3d Mon Sep 17 00:00:00 2001
+From: MisterZtr <andey2004586@gmail.com>
+Date: Sun Jul 9 19:57:57 2023 +0300
+Subject: [PATCH] Dont override ro.adb.secure
+
+---
+ config/common.mk | 8 --------
+ 1 file changed, 8 deletions(-)
+
+diff --git a/config/common.mk b/config/common.mk
+index 7b64199d..91f0404b 100644
+--- a/config/common.mk
++++ b/config/common.mk
+@@ -17,16 +17,8 @@ PRODUCT_SYSTEM_DEFAULT_PROPERTIES += \
+     ro.com.google.clientidbase=$(PRODUCT_GMS_CLIENTID_BASE)
+ endif
+
+-ifeq ($(TARGET_BUILD_VARIANT),eng)
+-# Disable ADB authentication
+-PRODUCT_SYSTEM_DEFAULT_PROPERTIES += ro.adb.secure=0
+-else
+-# Enable ADB authentication
+-PRODUCT_SYSTEM_DEFAULT_PROPERTIES += ro.adb.secure=1
+-
+ # Disable extra StrictMode features on all non-engineering builds
+ PRODUCT_SYSTEM_DEFAULT_PROPERTIES += persist.sys.strictmode.disable=true
+-endif
+
+ # Backup Tool
+ PRODUCT_COPY_FILES += \
+

@@ -1,0 +1,21 @@
+From b0a7e9eb533f47859eff3ea653f040eef7f71f7f Mon Sep 17 00:00:00 2001
+From: MisterZtr <andey2004586@gmail.com>
+Date: Tue Jul 11 17:09:52 2023 +0300
+Subject: [PATCH] Remove-duplicated-ro.custom.device
+
+---
+ build/core/main_version.mk | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/build/core/main_version.mk b/build/core/main_version.mk
+index 2fd4764b..2b61ac24 100644
+--- a/build/core/main_version.mk
++++ b/build/core/main_version.mk
+@@ -7,7 +7,6 @@ endif
+ # PixelOS Platform Version
+ ADDITIONAL_SYSTEM_PROPERTIES += \
+     ro.custom.build.date=$(BUILD_DATE) \
+-    ro.custom.device=$(CUSTOM_BUILD) \
+     ro.custom.fingerprint=$(ROM_FINGERPRINT) \
+     ro.custom.version=$(CUSTOM_VERSION) \
+     ro.modversion=$(CUSTOM_VERSION)
