@@ -1,0 +1,24 @@
+From d7b179f234d76c3acf7a723fc05f07efe9adc84c Mon Sep 17 00:00:00 2001
+From: Andy CrossGate Yan <GeForce8800Ultra@gmail.com>
+Date: Sun, 8 Aug 2021 09:29:32 +0000
+Subject: [PATCH 5/6] board: Set BOARD_EXT4_SHARE_DUP_BLOCKS explicitly
+
+Change-Id: I725443154fabde548d2e6c1b072d34c27596c421
+---
+ board-base.mk | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/board-base.mk b/board-base.mk
+index 04f99ef..22beef4 100644
+--- a/board-base.mk
++++ b/board-base.mk
+@@ -4,6 +4,7 @@ TARGET_EXFAT_DRIVER := exfat
+ DEVICE_FRAMEWORK_MANIFEST_FILE := device/phh/treble/framework_manifest.xml
+
+ BOARD_ROOT_EXTRA_FOLDERS += bt_firmware sec_storage efs persist
++BOARD_EXT4_SHARE_DUP_BLOCKS := true
+ BUILD_BROKEN_ELF_PREBUILT_PRODUCT_COPY_FILES := true
+ BUILD_BROKEN_DUP_RULES := true
+
+--
+2.25.1
