@@ -15,13 +15,13 @@ cd PixelOS
 ### To initialize your local repository, run this command:
 
 ```bash
-repo init -u https://github.com/PixelOS-AOSP/manifest.git -b thirteen
+repo init -u https://github.com/PixelOS-Fourteen/manifest.git -b fourteen --git-lfs
 ```
  
 
 ### Clone the Manifest to add necessary dependencies for gsi:
  
-    git clone https://github.com/MisterZtr/treble_manifest.git .repo/local_manifests  -b 13
+    git clone https://github.com/MisterZtr/treble_manifest.git .repo/local_manifests  -b 14
   
 
 

@@ -1,0 +1,49 @@
+From f9763a604f1195d0c4292dd7488747c489360f11 Mon Sep 17 00:00:00 2001
+From: Pierre-Hugues Husson <phh@phh.me>
+Date: Mon, 21 Dec 2020 20:19:11 +0100
+Subject: [PATCH] Make camera IDs filter-out optional
+
+Nowadays most people have Camera 2 apps, and would like to have all
+cameras, rather than limit which cameras are available.
+Add a property for that.
+---
+ .../common/CameraProviderManager.cpp             | 16 ++++++++++------
+ 1 file changed, 10 insertions(+), 6 deletions(-)
+
+diff --git a/services/camera/libcameraservice/common/CameraProviderManager.cpp b/services/camera/libcameraservice/common/CameraProviderManager.cpp
+index b163971..74e245b 100644
+--- a/services/camera/libcameraservice/common/CameraProviderManager.cpp
++++ b/services/camera/libcameraservice/common/CameraProviderManager.cpp
+@@ -265,7 +265,9 @@ std::vector<std::string> CameraProviderManager::getAPI1CompatibleCameraDeviceIds
+         // API1 app doesn't handle logical and physical camera devices well. So
+         // for each camera facing, only take the first id advertised by HAL in
+         // all [logical, physical1, physical2, ...] id combos, and filter out the rest.
+-        filterLogicalCameraIdsLocked(providerDeviceIds);
++        if(!property_get_bool("persist.sys.phh.include_all_cameras", false)) {
++            filterLogicalCameraIdsLocked(providerDeviceIds);
++        }
+         collectDeviceIdsLocked(providerDeviceIds, publicDeviceIds, systemDeviceIds);
+     }
+     auto sortFunc =
+@@ -962,11 +964,13 @@ void CameraProviderManager::ProviderInfo::DeviceInfo3::queryPhysicalCameraIds()
+     camera_metadata_entry_t entryCap;
+ 
+     entryCap = mCameraCharacteristics.find(ANDROID_REQUEST_AVAILABLE_CAPABILITIES);
+-    for (size_t i = 0; i < entryCap.count; ++i) {
+-        uint8_t capability = entryCap.data.u8[i];
+-        if (capability == ANDROID_REQUEST_AVAILABLE_CAPABILITIES_LOGICAL_MULTI_CAMERA) {
+-            mIsLogicalCamera = true;
+-            break;
++    if(!property_get_bool("persist.sys.phh.include_all_cameras", false)) {
++        for (size_t i = 0; i < entryCap.count; ++i) {
++            uint8_t capability = entryCap.data.u8[i];
++            if (capability == ANDROID_REQUEST_AVAILABLE_CAPABILITIES_LOGICAL_MULTI_CAMERA) {
++               mIsLogicalCamera = true;
++               break;
++            }
+         }
+     }
+     if (!mIsLogicalCamera) {
+-- 
+2.40.1
+

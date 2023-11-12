@@ -1,0 +1,28 @@
+From bc8917908978089970dd2c0c0b0dd425f68d5e03 Mon Sep 17 00:00:00 2001
+From: Peter Cai <peter@typeblog.net>
+Date: Wed, 24 Aug 2022 15:45:18 -0400
+Subject: [PATCH] audio_hal_interface: Optionally use sysbta HAL
+
+Required to support sysbta, our system-side bt audio implementation.
+
+Change-Id: I59973e6ec84c5923be8a7c67b36b2e237f000860
+---
+ system/audio_hal_interface/aidl/client_interface_aidl.cc | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/system/audio_hal_interface/aidl/client_interface_aidl.cc b/system/audio_hal_interface/aidl/client_interface_aidl.cc
+index 660a141..ed41627 100644
+--- a/system/audio_hal_interface/aidl/client_interface_aidl.cc
++++ b/system/audio_hal_interface/aidl/client_interface_aidl.cc
+@@ -266,7 +266,7 @@ int BluetoothAudioClientInterface::GetAidlInterfaceVersion() {
+ 
+   auto provider_factory = IBluetoothAudioProviderFactory::fromBinder(
+       ::ndk::SpAIBinder(AServiceManager_waitForService(
+-          kDefaultAudioProviderFactoryInterface.c_str())));
++          audioProviderFactoryInterface().c_str())));
+ 
+   if (provider_factory == nullptr) {
+     LOG(ERROR) << __func__ << ", can't get aidl version from unknown factory";
+-- 
+2.42.0
+

@@ -1,0 +1,18 @@
+From fe63283ab725952072354ac1b9a91150f2b2f8ed Mon Sep 17 00:00:00 2001
+From: MisterZtr <andey2004586@gmail.com>
+Date: Sun Nov 12 14:55:36 2023 +0300
+Subject: [PATCH] Fix undeclared identifier property_get_bool
+
+diff --git a/services/audiopolicy/common/managerdefinitions/src/Serializer.cpp b/services/audiopolicy/common/managerdefinitions/src/Serializer.cpp
+index 92c3f7d827..ed82fec38e 100644
+--- a/services/audiopolicy/common/managerdefinitions/src/Serializer.cpp
++++ b/services/audiopolicy/common/managerdefinitions/src/Serializer.cpp
+@@ -25,6 +25,8 @@
+ #include <libxml/parser.h>
+ #include <libxml/xinclude.h>
+ #include <media/convert.h>
++#include <cutils/properties.h>
++#include <system/audio.h>
+ #include <utils/Log.h>
+ #include <utils/StrongPointer.h>
+ #include <utils/Errors.h>
