@@ -1,30 +1,29 @@
-From db501ffbcbc3026f7a5142677a8d8d549f1dcf89 Mon Sep 17 00:00:00 2001
+From 8c8268502b637460d0370378e93dd66bd44e7f67 Mon Sep 17 00:00:00 2001
 From: Pierre-Hugues Husson <phh@phh.me>
 Date: Wed, 14 Dec 2022 17:21:00 -0500
-Subject: [PATCH] Call Samsung's ISehSysInputDev to report screen state to
- touchscreen driver
+Subject: [PATCH 30/44] Call Samsung's ISehSysInputDev to report screen state
+ to touchscreen driver
 
 This fixes touchscreen not waking up on Galaxy F23
 ---
- services/core/Android.bp                      |  2 ++
+ services/core/Android.bp                      |  1 +
  .../server/display/LocalDisplayAdapter.java   | 32 +++++++++++++++++++
- 2 files changed, 34 insertions(+)
+ 2 files changed, 33 insertions(+)
 
 diff --git a/services/core/Android.bp b/services/core/Android.bp
-index f8d19ec99..29f7d42c4 100644
+index 338717e37025..655161e31901 100644
 --- a/services/core/Android.bp
 +++ b/services/core/Android.bp
-@@ -186,6 +186,8 @@ java_library_static {
+@@ -186,6 +186,7 @@ java_library_static {
          "com.android.sysprop.watchdog",
          "ImmutabilityAnnotation",
          "securebox",
-+        "vendor.aac.hardware.richtap.vibrator",
 +        "vendor.samsung.hardware.sysinput-V1.2-java", // HIDL
+         "vendor.aac.hardware.richtap.vibrator",
      ],
      javac_shard_size: 50,
-     javacflags: [
 diff --git a/services/core/java/com/android/server/display/LocalDisplayAdapter.java b/services/core/java/com/android/server/display/LocalDisplayAdapter.java
-index c7c0fab61..537027f2d 100644
+index c7c0fab6140d..04adbe305622 100644
 --- a/services/core/java/com/android/server/display/LocalDisplayAdapter.java
 +++ b/services/core/java/com/android/server/display/LocalDisplayAdapter.java
 @@ -33,6 +33,7 @@ import android.os.Trace;
@@ -38,22 +37,22 @@ index c7c0fab61..537027f2d 100644
 @@ -51,6 +52,8 @@ import com.android.server.display.mode.DisplayModeDirector;
  import com.android.server.lights.LightsManager;
  import com.android.server.lights.LogicalLight;
- 
+
 +import vendor.samsung.hardware.sysinput.V1_1.ISehSysInputDev;
 +
  import java.io.PrintWriter;
  import java.util.ArrayList;
  import java.util.Arrays;
 @@ -234,6 +237,8 @@ final class LocalDisplayAdapter extends DisplayAdapter {
- 
+
          private DisplayEventReceiver.FrameRateOverride[] mFrameRateOverrides =
                  new DisplayEventReceiver.FrameRateOverride[0];
 +        private boolean triedSamsungHal = false;
 +        private ISehSysInputDev samsungSysinput = null;
- 
+
          LocalDisplayDevice(IBinder displayToken, long physicalDisplayId,
                  SurfaceControl.StaticDisplayInfo staticDisplayInfo,
-@@ -821,17 +826,44 @@ final class LocalDisplayAdapter extends DisplayAdapter {
+@@ -821,16 +826,42 @@ final class LocalDisplayAdapter extends DisplayAdapter {
                              }
                              mSidekickActive = false;
                          }
@@ -94,10 +93,7 @@ index c7c0fab61..537027f2d 100644
 +                        }
 +
                          setCommittedState(state);
-+
                          // If we're entering a suspended (but not OFF) power state and we
                          // have a sidekick available, tell it now that it can take control.
-                         if (Display.isSuspendedState(state) && state != Display.STATE_OFF
--- 
-2.40.1
+2.25.1
 

@@ -1,0 +1,43 @@
+From 38fde0e3896c88ee18150a56d8f984a97e70a393 Mon Sep 17 00:00:00 2001
+From: MisterZtr <andey2004586@gmail.com>
+Date: Tue Nov 14 19:40:35 2023 +0300
+Subject: [PATCH] Take controller.cc from android-14.0.0_r14-td
+
+
+diff --git a/system/gd/hci/controller.cc b/system/gd/hci/controller.cc
+index 363e191aa7..a51382cd0d 100644
+--- a/system/gd/hci/controller.cc
++++ b/system/gd/hci/controller.cc
+@@ -17,7 +17,6 @@
+ #include "hci/controller.h"
+ 
+ #include <base/strings/string_split.h>
+-#include <android-base/strings.h>
+ #include <future>
+ #include <memory>
+ #include <string>
+@@ -39,8 +38,6 @@ constexpr uint8_t kMinEncryptionKeySize = 7;  // #define MIN_ENCRYPTION_KEY_SIZE
+ constexpr bool kDefaultVendorCapabilitiesEnabled = true;
+ static const std::string kPropertyVendorCapabilitiesEnabled =
+     "bluetooth.core.le.vendor_capabilities.enabled";
+-static const char kPropertyDisabledCommands[] =
+-    "bluetooth.hci.disabled_commands";
+ 
+ using os::Handler;
+ 
+@@ -525,6 +522,15 @@ struct Controller::impl {
+     }
+ 
+     le_supported_states_ = local_states;
++  }
++
++  void le_read_connect_list_size_handler(CommandCompleteView view) {
++    auto complete_view = LeReadFilterAcceptListSizeCompleteView::Create(view);
++    ASSERT(complete_view.IsValid());
++    ErrorCode status = complete_view.GetStatus();
++    ASSERT_LOG(status == ErrorCode::SUCCESS, "Status 0x%02hhx, %s", status, ErrorCodeText(status).c_str());
++    le_connect_list_size_ = complete_view.GetFilterAcceptListSize();
++  }
+ 
+   void le_read_resolving_list_size_handler(CommandCompleteView view) {
+     auto complete_view = LeReadResolvingListSizeCompleteView::Create(view);

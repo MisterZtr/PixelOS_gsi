@@ -1,33 +1,49 @@
-From 6b16b192f435621fee2cc040299065a20b596647 Mon Sep 17 00:00:00 2001
+From f7e611c55ada8bd59c49fd843806a5b0912a29f2 Mon Sep 17 00:00:00 2001
 From: Pierre-Hugues Husson <phh@phh.me>
 Date: Sun, 25 Oct 2020 23:57:26 +0100
-Subject: [PATCH] Re-implement fnmatch-like behaviour for RRO java-side
+Subject: [PATCH 15/44] Re-implement fnmatch-like behaviour for RRO java-side
 
 T: Also apply to FrameworkParsingPackageUtils (@PeterCxy)
 
 Change-Id: Id38292a9a1453aa87b8401c1fdb390fa4e63c7d1
 ---
- .../parsing/FrameworkParsingPackageUtils.java | 22 +++++++++----------
- 1 file changed, 11 insertions(+), 11 deletions(-)
+ core/java/android/content/pm/PackageParser.java     | 13 +++++++++++--
+ .../pm/parsing/FrameworkParsingPackageUtils.java    | 13 +++++++++++--
+ 2 files changed, 22 insertions(+), 4 deletions(-)
 
+diff --git a/core/java/android/content/pm/PackageParser.java b/core/java/android/content/pm/PackageParser.java
+index 048289f56a0c..85c82b1572e5 100644
+--- a/core/java/android/content/pm/PackageParser.java
++++ b/core/java/android/content/pm/PackageParser.java
+@@ -2545,8 +2545,17 @@ public class PackageParser {
+         for (int i = 0; i < propNames.length; i++) {
+             // Check property value: make sure it is both set and equal to expected value
+             final String currValue = SystemProperties.get(propNames[i]);
+-            if (!TextUtils.equals(currValue, propValues[i])) {
+-                return false;
++            final String value = propValues[i];
++            if(value.startsWith("+")) {
++                final java.util.regex.Pattern regex = java.util.regex.Pattern.compile(value.substring(1, value.length()).replace("*", ".*"));
++                java.util.regex.Matcher matcher = regex.matcher(currValue);
++                if (!matcher.find()) {
++                    return false;
++                }
++            } else {
++                if(!value.equals(currValue)) {
++                    return false;
++                }
+             }
+         }
+         return true;
 diff --git a/core/java/android/content/pm/parsing/FrameworkParsingPackageUtils.java b/core/java/android/content/pm/parsing/FrameworkParsingPackageUtils.java
-index b75ba82ad..fb6f1922b 100644
+index 3e1c5bb3d7ec..8182e9e0c771 100644
 --- a/core/java/android/content/pm/parsing/FrameworkParsingPackageUtils.java
 +++ b/core/java/android/content/pm/parsing/FrameworkParsingPackageUtils.java
-@@ -214,17 +214,17 @@ public class FrameworkParsingPackageUtils {
-         }
+@@ -215,8 +215,17 @@ public class FrameworkParsingPackageUtils {
          for (int i = 0; i < propNames.length; i++) {
+             // Check property value: make sure it is both set and equal to expected value
              final String currValue = SystemProperties.get(propNames[i]);
--            // 1. Make sure prop is set.
--            if (currValue == null) {
--                return false;
--            }
--            // 2. Check next prop if expected value is a wildcard.
--            if ("*".equals(propValues[i])) {
--                continue;
--            }
--            // 3. Check if prop is equal to expected value.
--            if (!currValue.equals(propValues[i])) {
+-            if (!TextUtils.equals(currValue, propValues[i])) {
 -                return false;
 +            final String value = propValues[i];
 +            if(value.startsWith("+")) {
@@ -44,5 +60,5 @@ index b75ba82ad..fb6f1922b 100644
          }
          return true;
 -- 
-2.40.1
+2.25.1
 

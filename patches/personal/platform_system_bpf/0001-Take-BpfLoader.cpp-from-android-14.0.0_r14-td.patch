@@ -1,0 +1,25 @@
+From 8b055e74a79879526252357269ef23fdc79a0536 Mon Sep 17 00:00:00 2001
+From: MisterZtr <andey2004586@gmail.com>
+Date: Tue Nov 14 19:34:24 2023 +0300
+Subject: [PATCH] Take BpfLoader.cpp from android 14.0.0_r14-td
+
+diff --git a/bpfloader/BpfLoader.cpp b/bpfloader/BpfLoader.cpp
+index 158dca6..0af23c9 100644
+--- a/bpfloader/BpfLoader.cpp
++++ b/bpfloader/BpfLoader.cpp
+@@ -306,15 +306,6 @@ int main(int argc, char** argv) {
+         }
+     }
+ 
+-    int key = 1;
+-    int value = 123;
+-    android::base::unique_fd map(
+-            android::bpf::createMap(BPF_MAP_TYPE_ARRAY, sizeof(key), sizeof(value), 2, 0));
+-    if (android::bpf::writeToMapEntry(map, &key, &value, BPF_ANY)) {
+-        ALOGE("Critical kernel bug - failure to write into index 1 of 2 element bpf map array.");
+-        return 1;
+-    }
+-
+     if (android::base::SetProperty("bpf.progs_loaded", "1") == false) {
+         ALOGE("Failed to set bpf.progs_loaded property");
+         return 1;
