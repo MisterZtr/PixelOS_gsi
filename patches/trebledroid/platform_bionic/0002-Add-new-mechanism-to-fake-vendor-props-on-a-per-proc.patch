@@ -1,4 +1,4 @@
-From ab1289090a65808ee3fbbeb40b0a77e91c1a6aab Mon Sep 17 00:00:00 2001
+From 79369fc64d5ccad0b668c270b25276ec5a4b7d2d Mon Sep 17 00:00:00 2001
 From: Pierre-Hugues Husson <phh@phh.me>
 Date: Sat, 19 Feb 2022 08:20:25 -0500
 Subject: [PATCH 2/2] Add new mechanism to fake vendor props on a per-process
@@ -11,7 +11,7 @@ then ro.product.device/ro.product.manufacturer is read from vendor
  1 file changed, 85 insertions(+), 2 deletions(-)
 
 diff --git a/libc/system_properties/system_properties.cpp b/libc/system_properties/system_properties.cpp
-index 1cb15c3df..057199318 100644
+index ca8a68808..ef25d1602 100644
 --- a/libc/system_properties/system_properties.cpp
 +++ b/libc/system_properties/system_properties.cpp
 @@ -35,6 +35,8 @@
@@ -23,7 +23,7 @@ index 1cb15c3df..057199318 100644
  
  #include <new>
  
-@@ -50,6 +52,85 @@
+@@ -51,6 +53,85 @@
  #define SERIAL_DIRTY(serial) ((serial)&1)
  #define SERIAL_VALUE_LEN(serial) ((serial) >> 24)
  
@@ -109,7 +109,7 @@ index 1cb15c3df..057199318 100644
  static bool is_dir(const char* pathname) {
    struct stat info;
    if (stat(pathname, &info) == -1) {
-@@ -123,17 +204,19 @@ uint32_t SystemProperties::AreaSerial() {
+@@ -126,19 +207,21 @@ uint32_t SystemProperties::AreaSerial() {
  }
  
  const prop_info* SystemProperties::Find(const char* name) {
@@ -118,6 +118,8 @@ index 1cb15c3df..057199318 100644
    if (!initialized_) {
      return nullptr;
    }
+ 
+   pi_hooks.OnFind(&name);
  
 -  prop_area* pa = contexts_->GetPropAreaForName(name);
 +  prop_area* pa = contexts_->GetPropAreaForName(newName);
@@ -131,6 +133,5 @@ index 1cb15c3df..057199318 100644
  }
  
  static bool is_read_only(const char* name) {
--- 
+--
 2.25.1
-

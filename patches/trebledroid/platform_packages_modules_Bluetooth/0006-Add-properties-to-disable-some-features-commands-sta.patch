@@ -1,7 +1,7 @@
-From 38fde0e3896c88ee18150a56d8f984a97e70a393 Mon Sep 17 00:00:00 2001
+From 02adb60c162abafcd4ad9356bb874fe500750cdf Mon Sep 17 00:00:00 2001
 From: Pierre-Hugues Husson <phh@phh.me>
 Date: Sat, 27 May 2023 06:41:32 -0400
-Subject: [PATCH 6/7] Add properties to disable some features/commands/states
+Subject: [PATCH 6/8] Add properties to disable some features/commands/states
  that the ble chip declared but doesnt actually support
 
 ---
@@ -9,26 +9,36 @@ Subject: [PATCH 6/7] Add properties to disable some features/commands/states
  1 file changed, 68 insertions(+), 4 deletions(-)
 
 diff --git a/system/gd/hci/controller.cc b/system/gd/hci/controller.cc
-index 8df971e328..363e191aa7 100644
+index 5576293017..a51382cd0d 100644
 --- a/system/gd/hci/controller.cc
 +++ b/system/gd/hci/controller.cc
-@@ -16,6 +16,7 @@
-
+@@ -16,7 +16,7 @@
+ 
  #include "hci/controller.h"
-
+ 
+-#include <android-base/strings.h>
 +#include <base/strings/string_split.h>
- #include <android-base/strings.h>
  #include <future>
  #include <memory>
-@@ -28,6 +29,7 @@
+ #include <string>
+@@ -28,6 +28,7 @@
  #include "os/metrics.h"
  #include "os/system_properties.h"
  #include "sysprops/sysprops_module.h"
 +using bluetooth::os::GetSystemProperty;
-
+ 
  namespace bluetooth {
  namespace hci {
-@@ -300,16 +302,23 @@ struct Controller::impl {
+@@ -37,8 +38,6 @@ constexpr uint8_t kMinEncryptionKeySize = 7;  // #define MIN_ENCRYPTION_KEY_SIZE
+ constexpr bool kDefaultVendorCapabilitiesEnabled = true;
+ static const std::string kPropertyVendorCapabilitiesEnabled =
+     "bluetooth.core.le.vendor_capabilities.enabled";
+-static const char kPropertyDisabledCommands[] =
+-    "bluetooth.hci.disabled_commands";
+ 
+ using os::Handler;
+ 
+@@ -300,16 +299,23 @@ struct Controller::impl {
      ASSERT(complete_view.IsValid());
      ErrorCode status = complete_view.GetStatus();
      ASSERT_LOG(status == ErrorCode::SUCCESS, "Status 0x%02hhx, %s", status, ErrorCodeText(status).c_str());
@@ -59,9 +69,9 @@ index 8df971e328..363e191aa7 100644
 +
 +    local_supported_commands_ = local_commands;
    }
-
+ 
    void read_local_extended_features_complete_handler(std::promise<void> promise, CommandCompleteView view) {
-@@ -318,7 +327,25 @@ struct Controller::impl {
+@@ -318,7 +324,25 @@ struct Controller::impl {
      ErrorCode status = complete_view.GetStatus();
      ASSERT_LOG(status == ErrorCode::SUCCESS, "Status 0x%02hhx, %s", status, ErrorCodeText(status).c_str());
      uint8_t page_number = complete_view.GetPageNumber();
@@ -88,7 +98,7 @@ index 8df971e328..363e191aa7 100644
      bluetooth::os::LogMetricBluetoothLocalSupportedFeatures(page_number, complete_view.GetExtendedLmpFeatures());
      // Query all extended features
      if (page_number < complete_view.GetMaximumPageNumber()) {
-@@ -461,7 +488,21 @@ struct Controller::impl {
+@@ -461,7 +485,21 @@ struct Controller::impl {
      ASSERT(complete_view.IsValid());
      ErrorCode status = complete_view.GetStatus();
      ASSERT_LOG(status == ErrorCode::SUCCESS, "Status 0x%02hhx, %s", status, ErrorCodeText(status).c_str());
@@ -109,14 +119,13 @@ index 8df971e328..363e191aa7 100644
 +
 +    le_local_supported_features_ = local_features;
    }
-
+ 
    void le_read_supported_states_handler(CommandCompleteView view) {
-@@ -469,16 +510,21 @@ struct Controller::impl {
+@@ -469,7 +507,21 @@ struct Controller::impl {
      ASSERT(complete_view.IsValid());
      ErrorCode status = complete_view.GetStatus();
      ASSERT_LOG(status == ErrorCode::SUCCESS, "Status 0x%02hhx, %s", status, ErrorCodeText(status).c_str());
 -    le_supported_states_ = complete_view.GetLeStates();
--  }
 +    //le_supported_states_ = complete_view.GetLeStates();
 +
 +    auto local_states = complete_view.GetLeStates();
@@ -130,17 +139,49 @@ index 8df971e328..363e191aa7 100644
 +            local_states &= ~(1ULL << index);
 +        }
 +    }
-
--  void le_read_connect_list_size_handler(CommandCompleteView view) {
--    auto complete_view = LeReadFilterAcceptListSizeCompleteView::Create(view);
--    ASSERT(complete_view.IsValid());
--    ErrorCode status = complete_view.GetStatus();
--    ASSERT_LOG(status == ErrorCode::SUCCESS, "Status 0x%02hhx, %s", status, ErrorCodeText(status).c_str());
--    le_connect_list_size_ = complete_view.GetFilterAcceptListSize();
--  }
++
 +    le_supported_states_ = local_states;
-
-   void le_read_resolving_list_size_handler(CommandCompleteView view) {
-     auto complete_view = LeReadResolvingListSizeCompleteView::Create(view);
+   }
+ 
+   void le_read_connect_list_size_handler(CommandCompleteView view) {
+@@ -551,6 +603,13 @@ struct Controller::impl {
+     if (complete_view.IsValid()) {
+       vendor_capabilities_.is_supported_ = 0x01;
+ 
++      int vendor_cap_max = 0xffff;
++      std::string vendor_cap_max_prop = GetSystemProperty("persist.sys.bt.max_vendor_cap").value_or("");
++      if (vendor_cap_max_prop != "") {
++          vendor_cap_max = std::stoi(vendor_cap_max_prop);
++      }
++      if (vendor_cap_max < 55) return;
++
+       // v0.55
+       BaseVendorCapabilities base_vendor_capabilities = complete_view.GetBaseVendorCapabilities();
+       vendor_capabilities_.max_advt_instances_ = base_vendor_capabilities.max_advt_instances_;
+@@ -566,6 +625,8 @@ struct Controller::impl {
+         return;
+       }
+ 
++      if (vendor_cap_max < 95) return;
++
+       // v0.95
+       auto v95 = LeGetVendorCapabilitiesComplete095View::Create(complete_view);
+       if (!v95.IsValid()) {
+@@ -580,6 +641,7 @@ struct Controller::impl {
+         return;
+       }
+ 
++      if (vendor_cap_max < 96) return;
+       // v0.96
+       auto v96 = LeGetVendorCapabilitiesComplete096View::Create(v95);
+       if (!v96.IsValid()) {
+@@ -591,6 +653,7 @@ struct Controller::impl {
+         return;
+       }
+ 
++      if (vendor_cap_max < 98) return;
+       // v0.98
+       auto v98 = LeGetVendorCapabilitiesComplete098View::Create(v96);
+       if (!v98.IsValid()) {
+--
 2.25.1
-

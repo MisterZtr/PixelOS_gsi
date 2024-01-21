@@ -15,7 +15,7 @@ cd PixelOS
 ### To initialize your local repository, run this command:
 
 ```bash
-repo init -u https://github.com/PixelOS-Fourteen/manifest.git -b fourteen --git-lfs
+repo init -u https://github.com/PixelOS-AOSP/manifest.git -b fourteen --git-lfs
 ```
  
 
@@ -79,7 +79,7 @@ In rom folder,
 
    ```
 cd out/target/product/tdgsi_arm64_ab
-xz -z -k system.img
+7z a system.img.xz "system.img"
    ```
 
 
