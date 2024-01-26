@@ -1,0 +1,120 @@
+From dbf65b202dcf044382ad0ee43ac66bb9981d1b80 Mon Sep 17 00:00:00 2001
+From: MisterZtr <andey2004586@gmail.com>
+Date: Fri Jan 26 15:43:24 2024 +0300
+Subject: [PATCH] Revert "overlay: Move out CertifiedPropsOverlay and partition order definiton"
+    
+This reverts commit b4a22409743f39f5bd381f62484ea7e5498f0bee.
+
+diff --git a/config/common.mk b/config/common.mk
+index bd55ac78..67b121c5 100644
+--- a/config/common.mk
++++ b/config/common.mk
+@@ -94,6 +94,10 @@ PRODUCT_COPY_FILES += \
+     vendor/aosp/config/permissions/privapp-permissions-lineagehw.xml:$(TARGET_COPY_OUT_SYSTEM_EXT)/etc/permissions/privapp-permissions-lineagehw.xml
+ 
+ # Overlay
++PRODUCT_COPY_FILES += \
++    vendor/aosp/overlay/rro_packages/config-system_ext.xml:$(TARGET_COPY_OUT_SYSTEM_EXT)/overlay/config/config.xml \
++    vendor/aosp/overlay/rro_packages/partition_order.xml:$(TARGET_COPY_OUT_PRODUCT)/overlay/partition_order.xml
++
+ PRODUCT_PRODUCT_PROPERTIES += \
+     ro.boot.vendor.overlay.theme=com.android.internal.systemui.navbar.gestural;com.google.android.systemui.gxoverlay
+ 
+@@ -221,6 +225,7 @@ PRODUCT_PACKAGE_OVERLAYS += \
+ 
+ PRODUCT_PACKAGES += \
+     AndroidBlackThemeOverlay \
++    CertifiedPropsOverlay \
+     CustomFontPixelLauncherOverlay \
+     DocumentsUIOverlay \
+     NetworkStackOverlay \
+diff --git a/overlay/rro_packages/CertifiedPropsOverlay/Android.bp b/overlay/rro_packages/CertifiedPropsOverlay/Android.bp
+new file mode 100644
+index 00000000..7c839f9c
+--- /dev/null
++++ b/overlay/rro_packages/CertifiedPropsOverlay/Android.bp
+@@ -0,0 +1,10 @@
++//
++// Copyright (C) 2023 Paranoid Android
++//
++// SPDX-License-Identifier: Apache-2.0
++//
++
++runtime_resource_overlay {
++    name: "CertifiedPropsOverlay",
++    system_ext_specific: true,
++}
+diff --git a/overlay/rro_packages/CertifiedPropsOverlay/AndroidManifest.xml b/overlay/rro_packages/CertifiedPropsOverlay/AndroidManifest.xml
+new file mode 100644
+index 00000000..2e3624fc
+--- /dev/null
++++ b/overlay/rro_packages/CertifiedPropsOverlay/AndroidManifest.xml
+@@ -0,0 +1,10 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!--
++     Copyright (C) 2023 Paranoid Android
++     SPDX-License-Identifier: Apache-2.0
++-->
++<manifest xmlns:android="http://schemas.android.com/apk/res/android"
++    package="co.aospa.android.certifiedprops.overlay">
++    <application android:hasCode="false"/>
++    <overlay android:targetPackage="android"/>
++</manifest>
+diff --git a/overlay/rro_packages/CertifiedPropsOverlay/res/values/config.xml b/overlay/rro_packages/CertifiedPropsOverlay/res/values/config.xml
+new file mode 100644
+index 00000000..1a32d8e2
+--- /dev/null
++++ b/overlay/rro_packages/CertifiedPropsOverlay/res/values/config.xml
+@@ -0,0 +1,17 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!--
++     Copyright (C) 2023 Paranoid Android
++     SPDX-License-Identifier: Apache-2.0
++-->
++<resources>
++    <!-- Build properties from a GMS certified device against current platform SPL level -->
++    <string-array name="config_certifiedBuildProperties" translatable="false">
++        <item>PRODUCT:ferrari</item>
++        <item>DEVICE:ferrari</item>
++        <item>MANUFACTURER:Xiaomi</item>
++        <item>BRAND:xiaomi</item>
++        <item>MODEL:Mi 4i</item>
++        <item>FINGERPRINT:Xiaomi/ferrari/ferrari:5.0.2/LRX22G/V6.4.10.0.LXIMICB:user/release-keys</item>
++        <item>VERSION.SECURITY_PATCH:2019-08-05</item>
++    </string-array>
++</resources>
+diff --git a/overlay/rro_packages/config-system_ext.xml b/overlay/rro_packages/config-system_ext.xml
+new file mode 100644
+index 00000000..6271c411
+--- /dev/null
++++ b/overlay/rro_packages/config-system_ext.xml
+@@ -0,0 +1,8 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!--
++     Copyright (C) 2023 Paranoid Android
++     SPDX-License-Identifier: Apache-2.0
++-->
++<config>
++    <overlay package="co.aospa.android.certifiedprops.overlay" enabled="true" />
++</config>
+diff --git a/overlay/rro_packages/partition_order.xml b/overlay/rro_packages/partition_order.xml
+new file mode 100644
+index 00000000..d2914e07
+--- /dev/null
++++ b/overlay/rro_packages/partition_order.xml
+@@ -0,0 +1,13 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!--
++     Copyright (C) 2023 Paranoid Android
++     SPDX-License-Identifier: Apache-2.0
++-->
++<partition-order>
++    <partition name="system"/>
++    <partition name="system_ext"/>
++    <partition name="product"/>
++    <partition name="oem"/>
++    <partition name="vendor"/>
++    <partition name="odm"/>
++</partition-order>
+--
+2.34.1
