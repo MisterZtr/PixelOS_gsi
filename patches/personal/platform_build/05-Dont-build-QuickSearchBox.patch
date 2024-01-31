@@ -1,0 +1,21 @@
+From bdcba7bb7e5a6a076ec0b1ddeaac6dcad0070e86 Mon Sep 17 00:00:00 2001
+From: MisterZtr <andey2004586@gmail.com>
+Date: Wed Jan 31 17:20:45 2024 +0300
+Subject: [PATCH] Dont-build-QuickSearchBox.patch
+
+---
+ target/product/handheld_product.mk        | 1 -
+ 1 files changed, 1 deletions(-)
+
+diff --git a/target/product/handheld_product.mk b/target/product/handheld_product.mk
+index e789220062..833d30c3b5 100644
+--- a/target/product/handheld_product.mk
++++ b/target/product/handheld_product.mk
+@@ -29,7 +29,6 @@ PRODUCT_PACKAGES += \
+     Gallery2 \
+     Music \
+     preinstalled-packages-platform-handheld-product.xml \
+-    QuickSearchBox \
+     SettingsIntelligence \
+     frameworks-base-overlays
+ 
