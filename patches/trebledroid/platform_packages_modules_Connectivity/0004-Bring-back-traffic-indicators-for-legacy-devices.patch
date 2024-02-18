@@ -1,7 +1,7 @@
 From 2194cac9002f8c15518ed526b593c8726a8264d6 Mon Sep 17 00:00:00 2001
 From: koron393 <koron393@gmail.com>
 Date: Fri, 20 Jan 2023 05:41:13 +0900
-Subject: [PATCH 4/4] Bring back traffic indicators for legacy devices
+Subject: [PATCH 4/5] Bring back traffic indicators for legacy devices
 
 Revert: "remove qtaguid parsing"
 (commit 0b99c46bcde8e607d9233c474035da95ab68a6fe.)
