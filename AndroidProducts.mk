@@ -48,3 +48,4 @@ PRODUCT_MAKEFILES := \
 	$(LOCAL_DIR)/treble_a64_boS.mk \
 	$(LOCAL_DIR)/treble_a64_boN.mk \
         $(LOCAL_DIR)/treble_arm64_bN.mk \
+        $(LOCAL_DIR)/treble_arm64_bN_slim.mk \
